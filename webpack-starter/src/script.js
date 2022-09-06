@@ -81,13 +81,38 @@ const scene = new THREE.Scene();
 // can be: geometries, particles, lights,
 // need to create a Mesh, to represent the geometry( shape) and material(how it looks)
 
-// Red Cube Object
-// ----------------------------------------
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+// --------- Geometries --------
+// Made of vertices (coordinates in space) and faces ( triangles that join vertices)
+// can be used to create particles
+// particles made up of: position,uv, or normal coordinates
+
+// all geometries inherti from BufferGeometry
+
+// segments are used to add "texture" or more detail to geometries. creating more triangles
+// means more ddetails
+
+// Using a Float32Array to create a BufferGeometry
+// [x,y,z] [x,y,z] [x,y,z] first, second, and third vertexes
+// const positionsArray = new Float32Array([0, 0, 0, 0, 1, 0, 1, 0, 0]);
+// //convert into BufferAttirbute
+// const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3);
+// const custom_geometry = new THREE.BufferGeometry();
+// custom_geometry.setAttribute("position", positionsAttribute);
+
+const count = 50;
+const positionsArray = new Float32Array(count * 3 * 3);
+for (let i = 0; i < count * 3 * 3; i++) {
+  positionsArray[i] = (Math.random() - 0.5) * 1;
+}
+const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3);
+const custom_geometry = new THREE.BufferGeometry();
+custom_geometry.setAttribute("position", positionsAttribute);
+
+const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2);
 // create material
-const material = new THREE.MeshBasicMaterial({ color: "red" });
+const material = new THREE.MeshBasicMaterial({ color: "red", wireframe: true });
 // create mesh and add to scene
-const mesh = new THREE.Mesh(geometry, material);
+const mesh = new THREE.Mesh(custom_geometry, material);
 // // can modify mesh cooridnates anywhere before render
 // // mesh.position.x = 0.7;
 // // mesh.position.y = -0.6;
