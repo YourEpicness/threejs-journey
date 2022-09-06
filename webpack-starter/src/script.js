@@ -4,6 +4,52 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
+const sizes = { width: window.innerWidth, height: window.innerHeight };
+
+window.addEventListener("resize", (event) => {
+  // console.log("window resized");
+
+  // update size
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
+
+  // update camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
+
+  // update the renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+
+// coding full screen events
+// DOES NOT WORK ON SAFARI - need to use webkit
+window.addEventListener("dblclick", () => {
+  const fullscreenElement =
+    document.fullscreenElement || document.webkitFullscreenElement;
+
+  // console.log(document.fullscreenElement);
+  if (!fullscreenElement) {
+    // canvas.requestFullscreen();
+    if (canvas.requestFullscreen) {
+      canvas.requestFullscreen();
+    } else if (canvas.webkitRequestFullscreen) {
+      canvas.webkitRequestFullscreen();
+    }
+    return;
+  }
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    canvas.webkitExitFullscreen();
+  }
+});
+
+// Pixel Ratio
+// used to be pixel ratio of 1 is normal, apple made 2, 3 is being made now
+// a pixel ratio of 2 means 4 times more pixels to render, 3 means 9, etc
+// highest pixel ratios are on weakest devices: eg. mobile
+
 // ---- Mouse Events ----
 const cursor = {
   x: 0,
@@ -104,7 +150,7 @@ scene.add(axesHelper);
 // near and far dictate what is seen by camera
 // DO NOT use extreme values like 0.001 or 99999
 // next create the renderer: draws the scene,
-const sizes = { width: 800, height: 600 };
+
 const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
@@ -149,6 +195,8 @@ console.log("normalized", mesh.position.length());
 const renderer = new THREE.WebGLRenderer({ canvas });
 console.log(canvas);
 renderer.setSize(sizes.width, sizes.height);
+// limit pixel ratio on mobile
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 // ------------------- Orbit Controls -----------------
 // ThreeJs has built in controls for camera movement
@@ -158,6 +206,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0, 0);
 // add damping - slight delay when finishing drag and dropping
 controls.enableDamping = true;
+// controls.enabled = false;
 
 // ------------------------------------------------------
 
