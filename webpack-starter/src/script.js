@@ -2,6 +2,21 @@
 import "./style.css";
 import * as THREE from "three";
 import gsap from "gsap";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+
+// ---- Mouse Events ----
+const cursor = {
+  x: 0,
+  y: 0,
+};
+// Downfall is doesn't scale with window size well
+window.addEventListener("mousemove", (event) => {
+  // need an amplitude of 1, - 0.5 is to allow for negative # (range: -0.5 to 0.5)
+  cursor.x = event.clientX / sizes.width - 0.5;
+  cursor.y = -(event.clientY / sizes.height - 0.5);
+
+  // console.log(cursor.x, cursor.y);
+});
 
 console.log("Hello THREEJS!");
 
@@ -33,7 +48,7 @@ const mesh = new THREE.Mesh(geometry, material);
 // // mesh.position.z = 1;
 
 // // shorthand for above
-// mesh.position.set(0.7, -0.6, 1);
+mesh.position.set(0, 0, 0);
 
 // // Modifying the scale - Vector3
 // mesh.scale.set(2, 0.5, 0.5);
@@ -49,12 +64,14 @@ const mesh = new THREE.Mesh(geometry, material);
 // // quaternion - mathematical representation of a rotation
 // // mesh.quaternion.set();
 
+scene.add(mesh);
+
 // instead of doing all transform one by one, we can use GROUP class
 const group = new THREE.Group();
 group.position.y;
 group.scale.y = 2;
 group.rotation.y = 0.3;
-scene.add(group);
+// scene.add(group);
 
 const cube1 = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
@@ -94,13 +111,25 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
+
+// --- Orthographic Camera ---
+// const aspectRatio = sizes.width / sizes.height;
+// const camera = new THREE.OrthographicCamera(
+//   aspectRatio * -1,
+//   aspectRatio * 1,
+//   1,
+//   -1,
+//   0.1,
+//   100
+// );
+
 // we can move the camera or the object
 // we move the position in x,y,z axis
 // camera.position.z = 3;
 // camera.position.y = 1;
 // camera.position.x = 1;
 
-camera.position.set(1, 1, 3);
+camera.position.set(0, 0, 3);
 
 scene.add(camera);
 
@@ -120,6 +149,15 @@ console.log("normalized", mesh.position.length());
 const renderer = new THREE.WebGLRenderer({ canvas });
 console.log(canvas);
 renderer.setSize(sizes.width, sizes.height);
+
+// ------------------- Orbit Controls -----------------
+// ThreeJs has built in controls for camera movement
+// better version of camera code in tick()
+const controls = new OrbitControls(camera, canvas);
+// can set starting position
+controls.target.set(0, 0, 0);
+// add damping - slight delay when finishing drag and dropping
+controls.enableDamping = true;
 
 // ------------------------------------------------------
 
@@ -159,10 +197,24 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   // instead of += USE =
-  group.rotation.y = elapsedTime;
+  // mesh.rotation.y = elapsedTime;
+
+  // -- Animating the camera --
   // camera.position.y = Math.sin(elapsedTime);
   // camera.position.x = Math.cos(elapsedTime);
-  // camera.lookAt(group.position);
+
+  // Update the Camera - front/side view
+  // camera.position.x = cursor.x * 3;
+  // camera.position.y = cursor.y * 3;
+
+  // Camera update - full 180 including Y
+  // camera.position.x = Math.sin(cursor.x * Math.PI * 2) * 3;
+  // camera.position.y = cursor.y * 5;
+  // camera.position.z = Math.cos(cursor.x * Math.PI * 2) * 3;
+  // camera.lookAt(mesh.position);
+
+  // Orbit Controls
+  controls.update();
 
   // Render
   renderer.render(scene, camera);
